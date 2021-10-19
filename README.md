@@ -33,7 +33,8 @@ Here are the quick steps for **testing on AWS Cloud9 and Docker**.
 Install docker-compose ([https://docs.docker.com/compose/](https://docs.docker.com/compose/))  
 
 ```
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-composesudo chmod 
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 ```
 
 Now let’s deploy a MySQL container that uses a **docker volume to store persistent MySQL data**:  
@@ -78,6 +79,27 @@ docker inspect *containerid*
 We can see that the volume is being correctly configured by inspecting the Mounts configuration:
 
 ![Alt text](/images/2b-mounts.png "2b-mounts")
+
+Let's see how this work: we will write a file inside the container and see that it gets written to the container host.
+
+Connect to the container:
+```
+docker exec -it *containerid* bash
+```
+
+Create a file in the mount and exit:
+```
+touch /var/lib/mysql/testmount
+exit
+```
+
+Now that we are back in the container host let's check taht the file is actually written locally:
+```
+ls /var/lib/docker/volumes/ec2-user_dbdata/_data
+```
+
+![Alt text](/images/DockerVolumeMount.png "DockerVolumeMount")
+
 
 We have created a MySQL container that effectively uses a volume external from the container.
 
