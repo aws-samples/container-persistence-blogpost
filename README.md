@@ -111,6 +111,9 @@ docker stop containerid
 docker-compose rm db
 ```
 
+![Alt text](/images/DockerVolumeCleanup.png "DockerVolumeCleanup")
+
+
 And deleting the AWS Cloud9 instances following these instructions (as per the eksworkshop clean up):
 1. Go to your Cloud9 Environment
 2. Select the environment named eksworkshop and pick delete
