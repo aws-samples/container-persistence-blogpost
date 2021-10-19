@@ -132,8 +132,49 @@ Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_
 
 Create storage class for this clsuter by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
 
-Now you ahve a Kubernetes Cluster that can use EBS as an extrenbal storage provider
+Now you have a Kubernetes Cluster that can use EBS as an external storage provider.
 
+We will now deploy a postgresql container that uses this external storage.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    name: postgres
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:9.6
+          env:
+            - name: POSTGRES_PASSWORD
+              value: AVeryBadPassword
+          ports:
+            - containerPort: 5432
+              name: postgres
+          volumeMounts:
+            - mountPath: /var/lib/postgresql
+              name: pg-storage
+      volumes:
+        - name: pg-storage
+          persistentVolumeClaim:
+            claimName: mysql-gp2
 
 
 
