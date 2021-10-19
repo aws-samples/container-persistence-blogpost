@@ -1,7 +1,7 @@
 
 # **Overview**
 
-This tutorial will guide you through working examples that will alow You to experiment different options to provide persistence storage to containers in different scenarios as per this blogpost (LINK TBD).
+This tutorial will guide you through working examples that will allow You to **experiment with different options to provide persistence storage to containers in different scenarios** as per this blogpost (LINK TBD).
 
 We will details the steps for these use cases
 1. Single Container running with persistent storage
@@ -9,12 +9,18 @@ We will details the steps for these use cases
 3. Single Container with persistent storage running across multiple Container Hosts and multiple Availability Zones
 4. Single container with single persistent datastore that spans across Availability Zones
 
-Each setup will provide prerequisistes, instructions and clean up procedures
+Each setup will provide prerequisistes, instructions and clean up procedures.
+
+**All code is provided** <u>**AS IS**</u>**: it is not meant for production workloads but for test environments only.**
+
+You may incur in costs for testing these setups so we recommend to take this into account and tear down the environments aftre performing your tests.
 
 # Single Container running with persistent storage
 
 
-This tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a Cassandra cluster that can withstand the loss of a full Availability Zone. A procedure for testing the setup by simulating an AZ failure is provided as well.
+# Single Container with persistent storage running across multiple Container Hosts and multiple Availability Zones
+
+This part of the tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a Cassandra cluster that can withstand the loss of a full Availability Zone. A procedure for testing the setup by simulating an AZ failure is provided as well.
 
 **All code is provided** <u>**AS IS**</u>**: it is not meant for production workloads but for test environments only.**
 
