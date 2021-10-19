@@ -130,6 +130,10 @@ This part of the tutorial will drive you through the creation of Kubernetes clus
 ## Prerequisites
 Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_eksctl/prerequisites/
 
+Create storage class for this clsuter by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
+
+Now you ahve a Kubernetes Cluster that can use EBS as an extrenbal storage provider
+
 
 
 
