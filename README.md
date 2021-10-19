@@ -121,6 +121,15 @@ And deleting the AWS Cloud9 instances following these instructions (as per the e
 1. Go to your Cloud9 Environment
 2. Select the environment named eksworkshop and pick delete
 
+# Single Container with persistent storage running across multiple Container Hosts
+This part of the tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a container with SQL server that can withstand the loss of a Container Host.
+
+![Alt text](/images/SingleContainerMultipleContainerHosts.png "SingleContainerMultipleContainerHosts")
+
+
+## Prerequisites
+Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_eksctl/prerequisites/
+
 
 
 
@@ -417,6 +426,8 @@ kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-sout
 The **Cassandra cluster is back online** and **data has been preserved**.  
  
 We have **demonstrated how this type of setup can withstand the loss of a node in one AZ** and **how Amazon EBS storage plays a role in persisting the relevant data** for the application.
+
+## Clean up Instructions
 
 
 
