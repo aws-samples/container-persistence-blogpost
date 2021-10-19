@@ -21,6 +21,9 @@ You may incur in costs for testing these setups so we recommend to take this int
 
 This tutorial will drive you through the creation of docker container that leverages backing storage for containers provided by Docker Volume.
 
+![Alt text](/images/SingleContainerDockerVolume.png "SingleContainerDockerVolume")
+
+
 This setup uses AWS Cloud9 as an environment to deploy your container and storage used by Docker volume is local to that Cloud9 instance.
 
 
