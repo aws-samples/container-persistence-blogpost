@@ -136,7 +136,33 @@ Now you have a Kubernetes Cluster that can use EBS as an external storage provid
 
 We will now deploy a postgresql container that uses this external storage.
 
+Create a Persistent Volume Claim for our PostgreSQL container.
+
+```
+cat << EoF > pvcpostgresql.yam
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvcpostgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: mysql-gp2
+  resources:
+    requests:
+      storage: 4Gi
+```
+
+Check that the persistent volume claim has been created:
+```
+kubectl get pvc
+```
+
+
+Create the PostgreSQL deployment that will consume this storage:
+
+```
+cat << EoF > apppostgresql.yam
 kind: Service
 metadata:
   name: postgres
@@ -146,14 +172,22 @@ spec:
   selector:
     app: postgres
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
   labels:
     name: postgres
 spec:
+  strategy:
+    rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 1
+    type: RollingUpdate
   replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
   template:
     metadata:
       labels:
@@ -174,8 +208,14 @@ spec:
       volumes:
         - name: pg-storage
           persistentVolumeClaim:
-            claimName: mysql-gp2
+            claimName: pvcpostgresql
+EoF
+```
 
+Check that it is running:
+```
+kubectl get pods
+```
 
 
 # Single Container with persistent storage running across multiple Container Hosts and multiple Availability Zones
