@@ -162,7 +162,7 @@ Create a password for our postgreSQL
 ```
 echo awsawsaws123 > password.txt
 tr --delete '\n' <password.txt >.strippedpassword.txt && mv .strippedpassword.txt password.txt
-kubectl create secret generic mysql-pass --from-file=password.txt
+kubectl create secret generic postgresql-pass --from-file=password.txt
 ```
 
 ```
@@ -210,7 +210,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-pass
+                  name: postgresql-pass
                   key: password.txt
           ports:
             - containerPort: 5432
