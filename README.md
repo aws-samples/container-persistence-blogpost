@@ -130,7 +130,39 @@ This part of the tutorial will drive you through the creation of Kubernetes clus
 ## Prerequisites
 Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_eksctl/prerequisites/
 
-Create storage class for this clsuter by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
+We will ceate a cluster that resides only in one Availability Zone:
+
+```
+cat << EOF > eksworkshopsingleaz.yaml
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eksworkshop-eksctl
+  region: ${AWS_REGION}
+  version: "1.19"
+
+availabilityZones: ["${AZS[0]}"]
+
+managedNodeGroups:
+- name: nodegroup
+  desiredCapacity: 3
+  instanceType: t3.small
+  ssh:
+    enableSsm: true
+
+# To enable all of the control plane logs, uncomment below:
+# cloudWatch:
+#  clusterLogging:
+#    enableTypes: ["*"]
+
+secretsEncryption:
+  keyARN: ${MASTER_ARN}
+EOF
+```
+
+Create storage class for this cluster by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
 
 Now you have a Kubernetes Cluster that can use EBS as an external storage provider.
 
