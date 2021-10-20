@@ -134,7 +134,7 @@ Create storage class for this clsuter by following the EKS tutorial for EBS CSI:
 
 Now you have a Kubernetes Cluster that can use EBS as an external storage provider.
 
-We will now deploy a postgresql container that uses this external storage.
+We will now deploy a PostgreSQL container that uses this external storage.
 
 Create a Persistent Volume Claim for our PostgreSQL container.
 
@@ -158,6 +158,16 @@ Check that the persistent volume claim has been created:
 kubectl get pvc
 ```
 
+Create a password for our postgreSQL
+```
+echo awsawsaws123 > password.txt
+tr --delete '\n' <password.txt >.strippedpassword.txt && mv .strippedpassword.txt password.txt
+kubectl create secret generic mysql-pass --from-file=password.txt
+```
+
+```
+kubectl get secrets
+```
 
 Create the PostgreSQL deployment that will consume this storage:
 
@@ -198,7 +208,10 @@ spec:
           image: postgres:9.6
           env:
             - name: POSTGRES_PASSWORD
-              value: AVeryBadPassword
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-pass
+                  key: password.txt
           ports:
             - containerPort: 5432
               name: postgres
@@ -216,6 +229,11 @@ Check that it is running:
 ```
 kubectl get pods
 ```
+Connect to the container:
+```
+kubectl exec -it Containerid bash
+```
+
 
 
 # Single Container with persistent storage running across multiple Container Hosts and multiple Availability Zones
