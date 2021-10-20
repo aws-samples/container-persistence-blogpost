@@ -130,7 +130,7 @@ This part of the tutorial will drive you through the creation of Kubernetes clus
 ## Prerequisites
 Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_eksctl/prerequisites/
 
-We will ceate a cluster that resides only in one Availability Zone:
+We will ceate a cluster that resides only in one Availability Zone (this is **NOT** a best practice and it is just for demo purposes):
 
 ```
 cat << EOF > eksworkshopsingleaz.yaml
@@ -139,7 +139,7 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: eksworkshop-eksctl
+  name: eksworkshop-eksctl-singleaz
   region: ${AWS_REGION}
   version: "1.19"
 
