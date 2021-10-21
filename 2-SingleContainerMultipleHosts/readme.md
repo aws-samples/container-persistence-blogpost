@@ -91,7 +91,7 @@ eksctl utils associate-iam-oidc-provider \
 
 # Create a service account
 eksctl create iamserviceaccount \
-  --cluster eksworkshop-eksctl-4nodes2azs \
+  --cluster eksworkshop-eksctl-6nodes \
   --name ebs-csi-controller-irsa \
   --namespace kube-system \
   --attach-policy-arn $EBS_CSI_POLICY_ARN \
