@@ -184,7 +184,7 @@ spec:
       terminationGracePeriodSeconds: 1800
       containers:
       - name: cassandra
-        image: gcr.io/google-samples/cassandra:v13
+        image: cassandra:3
         imagePullPolicy: Always
         ports:
         - containerPort: 7000
