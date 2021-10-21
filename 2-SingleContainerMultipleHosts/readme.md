@@ -11,7 +11,7 @@ You may incur in costs for testing this setup so we recommend to take this into 
 ## Prerequisites
 Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_eksctl/prerequisites/
 
-The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will create a cluster that resides only in two Availability Zone (this is **NOT** a best practice and it is just for demo purposes):
+The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will create a cluster that is using 3 worker nodes:
 
 ```
 cat << EOF > eksworkshop6nodes.yaml
@@ -99,7 +99,7 @@ eksctl create iamserviceaccount \
   --approve
 ```
 
-Configure arepository for the CSI driver
+Configure a repository for the CSI driver
 
 ```
 # add the aws-ebs-csi-driver as a helm repo
@@ -127,7 +127,7 @@ helm upgrade --install aws-ebs-csi-driver \
 kubectl -n kube-system rollout status deployment ebs-csi-controller
 ```
 
-Now let' define a Storage Class:
+Now let's define a Storage Class:
 
 ```
 cat << EoF > ${HOME}/mysql-storageclass.yaml
@@ -162,6 +162,13 @@ kubectl describe storageclass mysql-gp2
 
 
 Now you have a Kubernetes Cluster that can use EBS as an external storage provider.
+
+The Cluster is distributed over 3 Availability Zones with two workers in each AZ.
+
+To demonstarte that the application can survuve the loss of a node in an AZ (i.e
+
+
+
 
 We will now deploy a PostgreSQL container that uses this external storage.
 
