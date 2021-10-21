@@ -11,10 +11,10 @@ You may incur in costs for testing this setup so we recommend to take this into 
 ## Prerequisites
 Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_eksctl/prerequisites/
 
-We will ceate a cluster that resides only in one Availability Zone (this is **NOT** a best practice and it is just for demo purposes):
+The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will create a cluster that resides only in two Availability Zone (this is **NOT** a best practice and it is just for demo purposes):
 
 ```
-cat << EOF > eksworkshopsingleaz.yaml
+cat << EOF > eksworkshop4nodes2azs.yaml
 ---
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
@@ -24,11 +24,11 @@ metadata:
   region: ${AWS_REGION}
   version: "1.19"
 
-availabilityZones: ["${AZS[0]}"]
+availabilityZones: ["${AZS[0]}", "${AZS[1]}"]
 
 managedNodeGroups:
 - name: nodegroup
-  desiredCapacity: 3
+  desiredCapacity: 4
   instanceType: t3.small
   ssh:
     enableSsm: true
@@ -42,6 +42,12 @@ secretsEncryption:
   keyARN: ${MASTER_ARN}
 EOF
 ```
+
+Then launch it:
+```
+eksctl create cluster -f eksworkshop4nodes.2azs.yaml
+```
+
 
 Create storage class for this cluster by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
 
