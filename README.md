@@ -13,9 +13,9 @@ Each setup will provide prerequisites, instructions and clean up procedures.
 
 **All code is provided** <u>**AS IS**</u>**: it is not meant for production workloads but for test environments only.**
 
-You may incur in costs for testing these setups so we recommend to take this into account and tear down the environments after performing your tests.
+**You may incur in costs for testing these scenarios** so we recommend to take this into account and **remember to tear down the environments after performing your tests**.
 
-You can find a tutorial for each use case in the folders available in this repository.
+You can find **a tutorial for each use case in the different folders** available in this repository.
 
 
 
