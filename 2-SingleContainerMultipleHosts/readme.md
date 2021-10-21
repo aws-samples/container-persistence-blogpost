@@ -1,7 +1,21 @@
 # Single Container with persistent storage running across multiple Container Hosts
-This part of the tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a container with SQL server that can withstand the loss of a Container Host.
+This part of the tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a Cassandra cluster that can withstand the loss of a Container Host.
 
-![Alt text](/images/SingleContainerMultipleContainerHosts.png "SingleContainerMultipleContainerHosts")
+We will **simulate a the failure of one container host of the EKS cluster in a single AZ** to demonstrate how an external storage (in this case EBS) can allow the application to withstand a Container host failure.
+You can see the flow in these diagrams (**focus on Availability Zone 1**):
+
+Initial Configuration where each conatiner in ech AZ is running and storing data on an extrenal EBS volume:
+
+![Alt text](/images/Cassandra6Deployed.png "Cassandra6Deployed")
+
+Failure of a Container host in AZ1
+
+![Alt text](/images/Cassandra6Failure.png "Cassandra6Failure")
+
+Container is restarted on the remaining host in AZ1 and reconnects to EBS exyerba storage:
+
+![Alt text](/images/Cassandra6Restored.png "Cassandra6Restored")
+
 
 **All code is provided** <u>**AS IS**</u>**: it is not meant for production workloads but for test environments only.**
 
