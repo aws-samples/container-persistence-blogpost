@@ -184,6 +184,12 @@ spec:
       storage: 4Gi
 EoF
 ```
+And create it
+
+```
+kubectl create -f pvcpostgresql.yaml
+```
+
 
 Check that the persistent volume claim has been created:
 ```
