@@ -11,6 +11,8 @@ You may incur in costs for testing this setup so we recommend to take this into 
 ## Prerequisites
 Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_eksctl/prerequisites/
 
+We will use a Cloud9 instance to issue all the commands as described in the EKS Workshop. Remember to install all prerequisites as per the above link
+
 The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will create a cluster that is using 3 worker nodes:
 
 ```
@@ -80,7 +82,6 @@ export EBS_CSI_POLICY_ARN=$(aws --region ${AWS_REGION} iam list-policies --query
 ```
 
 IAM OIDC provider for the cluster (changed cluster name):
-
 
 ```
 # Create an IAM OIDC provider for your cluster
@@ -163,116 +164,21 @@ kubectl describe storageclass mysql-gp2
 
 Now you have a Kubernetes Cluster that can use EBS as an external storage provider.
 
-The Cluster is distributed over 3 Availability Zones with two workers in each AZ.
+The Cluster is distributed over 3 Availability Zones with **two** workers in each AZ.
 
-To demonstarte that the application can survuve the loss of a node in an AZ (i.e
-
-
+To demonstrate that the application can survive the loss of a node in an AZ, we willd eploy a Cassandra cluster and simulate the loss of a worker nodei in one availability zone. The cassandra cluster will have one node in every AZ connected to an external EBS storage, as such **during the simulated failure the pod will be restarted on the remaining node in the AZ and the application will be able to reconnect to storage** (as this is external to the container and available on EBS).
 
 
-We will now deploy a PostgreSQL container that uses this external storage.
-
-As storage is provided by EBS the storage will be available in a single AZ.
-
-Create a Persistent Volume Claim for our PostgreSQL container (this uses the storage class that we prepared above).
-
-```
-cat << EoF > pvcpostgresql.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvcpostgresql
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: mysql-gp2
-  resources:
-    requests:
-      storage: 4Gi
-EoF
-```
-And create it
-
-```
-kubectl create -f pvcpostgresql.yaml
-```
 
 
-Check that the persistent volume claim has been created:
-```
-kubectl get pvc
-```
 
-Create a password for our postgreSQL
-```
-echo awsawsaws123 > password.txt
-tr --delete '\n' <password.txt >.strippedpassword.txt && mv .strippedpassword.txt password.txt
-kubectl create secret generic postgresql-pass --from-file=password.txt
-```
 
-```
-kubectl get secrets
-```
+# Clean up Instructions
 
-Create the PostgreSQL deployment that will consume this storage:
+Remember to delete the AWS Cloud9 instance following these instructions (as per the eksworkshop clean up):
+1. Go to your Cloud9 Environment
+2. Select the environment named eksworkshop and pick delete
 
-```
-cat > app-postgresql.yaml <<EOF
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgresql
-spec:
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgresql
-  template:
-    metadata:
-      labels:
-        app: postgresql
-    spec:
-      schedulerName: stork
-      containers:
-      - name: postgresql
-        image: postgres:9.5
-        imagePullPolicy: "Always"
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_USER
-          value: pgbench
-        - name: PGUSER
-          value: pgbench
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgresql-pass
-              key: password.txt
-        - name: PGBENCH_PASSWORD
-          value: superpostgresql
-        - name: PGDATA
-          value: /var/lib/postgresql/data/pgdata
-        volumeMounts:
-        - mountPath: /var/lib/postgresql/data
-          name: postgresqldb
-      volumes:
-      - name: postgresqldb
-        persistentVolumeClaim:
-          claimName: pvcpostgreqsl
-EOF
-```
-
-Deploy the pod:
-
-```
-kubectl create -f app-postgresql.yaml
-```
 
 
 
