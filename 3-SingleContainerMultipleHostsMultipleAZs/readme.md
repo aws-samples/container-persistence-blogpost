@@ -289,7 +289,7 @@ Now we will simulate a failure scenario where one node in one AZ becomes unavail
 To see that data gets persisted even in case of a failure let’s write some information into the Cassandra cluster.  
 Connect to one node:  
 ```
-kubectl exec -it cassandra-0 — cqlsh
+kubectl exec -it cassandra-0 -- cqlsh
 ```
 And create a small table in Cassandra:  
 ```
