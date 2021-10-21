@@ -210,6 +210,88 @@ kubectl get secrets
 Create the PostgreSQL deployment that will consume this storage:
 
 ```
+cat > app-postgresql.yaml <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      schedulerName: stork
+      containers:
+      - name: postgresql
+        image: postgres:9.5
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: pgbench
+        - name: PGUSER
+          value: pgbench
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-pass
+              key: password.txt
+        - name: PGBENCH_PASSWORD
+          value: superpostgresql
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgresqldb
+      volumes:
+      - name: postgresqldb
+        persistentVolumeClaim:
+          claimName: pvcpostgreqsl
+EOF
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
 cat << EoF > apppostgresql.yam
 kind: Service
 metadata:
