@@ -14,21 +14,21 @@ Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_
 The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will create a cluster that resides only in two Availability Zone (this is **NOT** a best practice and it is just for demo purposes):
 
 ```
-cat << EOF > eksworkshop4nodes2azs.yaml
+cat << EOF > eksworkshop6nodes.yaml
 ---
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: eksworkshop-eksctl-4nodes2azs
+  name: eksworkshop-eksctl-6nodes
   region: ${AWS_REGION}
   version: "1.21"
 
-availabilityZones: ["${AZS[0]}", "${AZS[1]}"]
+availabilityZones: ["${AZS[0]}", "${AZS[1]}", "${AZS[2]}"]
 
 managedNodeGroups:
 - name: nodegroup
-  desiredCapacity: 4
+  desiredCapacity: 6
   instanceType: t3.small
   ssh:
     enableSsm: true
@@ -45,7 +45,7 @@ EOF
 
 Then launch it:
 ```
-eksctl create cluster -f eksworkshop4nodes2azs.yaml
+eksctl create cluster -f eksworkshop6nodes.yaml
 ```
 
 This will take a few minutes, after the command completed check if the cluster is available:
@@ -86,7 +86,7 @@ IAM OIDC provider for the cluster (changed cluster name):
 # Create an IAM OIDC provider for your cluster
 eksctl utils associate-iam-oidc-provider \
   --region=$AWS_REGION \
-  --cluster=eksworkshop-eksctl-4nodes2azs \
+  --cluster=eksworkshop-eksctl-6nodes \
   --approve
 
 # Create a service account
