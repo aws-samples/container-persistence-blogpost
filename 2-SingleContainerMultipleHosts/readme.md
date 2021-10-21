@@ -78,7 +78,8 @@ aws iam create-policy \
 # export the policy ARN as a variable
 export EBS_CSI_POLICY_ARN=$(aws --region ${AWS_REGION} iam list-policies --query 'Policies[?PolicyName==`'$EBS_CSI_POLICY_NAME'`].Arn' --output text)
 ```
-IAM OIDC provider for the cluster (chnaged cluster name:
+
+IAM OIDC provider for the cluster (changed cluster name):
 
 
 ```
@@ -98,8 +99,33 @@ eksctl create iamserviceaccount \
   --approve
 ```
 
+Configure arepository for the CSI driver
 
+```
+# add the aws-ebs-csi-driver as a helm repo
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
 
+# search for the driver
+helm search  repo aws-ebs-csi-driver
+```
+
+And install it:
+
+```
+helm upgrade --install aws-ebs-csi-driver \
+  --version=1.2.4 \
+  --namespace kube-system \
+  --set serviceAccount.controller.create=false \
+  --set serviceAccount.snapshot.create=false \
+  --set enableVolumeScheduling=true \
+  --set enableVolumeResizing=true \
+  --set enableVolumeSnapshot=true \
+  --set serviceAccount.snapshot.name=ebs-csi-controller-irsa \
+  --set serviceAccount.controller.name=ebs-csi-controller-irsa \
+  aws-ebs-csi-driver/aws-ebs-csi-driver
+
+kubectl -n kube-system rollout status deployment ebs-csi-controller
+```
 
 
 
