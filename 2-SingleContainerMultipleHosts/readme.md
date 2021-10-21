@@ -182,7 +182,7 @@ spec:
   resources:
     requests:
       storage: 4Gi
-EoF      
+EoF
 ```
 
 Check that the persistent volume claim has been created:
