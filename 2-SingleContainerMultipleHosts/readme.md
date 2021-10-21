@@ -261,7 +261,11 @@ spec:
 EOF
 ```
 
+Deploy the pod:
 
+```
+kubectl create -f app-postgresql.yaml
+```
 
 
 
