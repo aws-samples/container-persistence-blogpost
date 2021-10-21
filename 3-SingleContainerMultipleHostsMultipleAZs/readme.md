@@ -161,65 +161,92 @@ Create the service in Kubernetes:
 kubectl create -f cassandra-svc.yaml
 ```
 Now we will create the Cassandra cluster itself (notice that the only change from the Kubernetes documentation example is the name of the storage class to be used, a great plus for workloads portability across different Kubernetes storage options):  
+
 ```
-cat > cassandra-app.yaml << EOF  
+cat > cassandra-app.yaml << EOF
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: cassandra
+  labels:
+    app: cassandra
 spec:
+  serviceName: cassandra
+  replicas: 3
   selector:
     matchLabels:
       app: cassandra
-  serviceName: cassandra
-  replicas: 3
   template:
     metadata:
       labels:
         app: cassandra
     spec:
-      schedulerName: stork
+      terminationGracePeriodSeconds: 1800
       containers:
       - name: cassandra
-        image: cassandra:3
+        image: gcr.io/google-samples/cassandra:v13
+        imagePullPolicy: Always
         ports:
-          - containerPort: 7000
-            name: intra-node
-          - containerPort: 7001
-            name: tls-intra-node
-          - containerPort: 7199
-            name: jmx
-          - containerPort: 9042
-            name: cql
+        - containerPort: 7000
+          name: intra-node
+        - containerPort: 7001
+          name: tls-intra-node
+        - containerPort: 7199
+          name: jmx
+        - containerPort: 9042
+          name: cql
+        resources:
+          limits:
+            cpu: "500m"
+            memory: 1Gi
+          requests:
+            cpu: "500m"
+            memory: 1Gi
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+        lifecycle:
+          preStop:
+            exec:
+              command: 
+              - /bin/sh
+              - -c
+              - nodetool drain
         env:
-          - name: CASSANDRA_SEEDS
-            value: cassandra-0.cassandra.default.svc.cluster.local
-          - name: MAX_HEAP_SIZE 
+          - name: MAX_HEAP_SIZE
             value: 512M
           - name: HEAP_NEWSIZE
-            value: 512M
+            value: 100M
+          - name: CASSANDRA_SEEDS
+            value: "cassandra-0.cassandra.default.svc.cluster.local"
           - name: CASSANDRA_CLUSTER_NAME
-            value: "Cassandra"
+            value: "K8Demo"
           - name: CASSANDRA_DC
-            value: "DC1"
+            value: "DC1-K8Demo"
           - name: CASSANDRA_RACK
-            value: "Rack1"
-          - name: CASSANDRA_AUTO_BOOTSTRAP
-            value: "false"            
-          - name: CASSANDRA_ENDPOINT_SNITCH
-            value: GossipingPropertyFileSnitch
+            value: "Rack1-K8Demo"
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - /ready-probe.sh
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
         volumeMounts:
         - name: cassandra-data
-          mountPath: /var/lib/cassandra
+          mountPath: /cassandra_data
   volumeClaimTemplates:
   - metadata:
       name: cassandra-data
-      annotations:
-        volume.beta.kubernetes.io/storage-class: mysql-gp2
-      labels:
-         app: cassandra
     spec:
       accessModes: [ "ReadWriteOnce" ]
+      storageClassName: mysql-gp2
       resources:
         requests:
           storage: 1Gi
