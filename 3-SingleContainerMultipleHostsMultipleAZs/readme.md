@@ -4,6 +4,9 @@ There are two high level scenarios in this use case:
 1. Active/Standby Databases on two Containers with independent persistent datastores
 2. Active/Active databases on 2+ containers with independent persistent datastores
 
+**All code is provided** <u>**AS IS**</u>**: it is not meant for production workloads but for test environments only.**
+
+You may incur in costs for testing this setup so we recommend to take this into account and tear down the environments after performing your tests.
 
 
 # Active/Standby Databases on two Containers with independent persistent datastores
