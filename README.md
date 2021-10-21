@@ -4,10 +4,10 @@
 This tutorial will guide you through working examples that will allow You to **experiment with different options to provide persistence storage to containers in different scenarios** as per this blogpost (LINK TBD).
 
 We will details the steps for these use cases
-1. Single Container running with persistent storage
-2. Single Container with persistent storage running across multiple Container Hosts
-3. Single Container with persistent storage running across multiple Container Hosts and multiple Availability Zones
-4. Single container with single persistent datastore that spans across Availability Zones
+1. Single Container running with **persistent storage**
+2. Single Container with persistent storage running across **multiple Container Hosts**
+3. Single Container with persistent storage running across multiple Container Hosts and **multiple Availability Zones**
+4. Single container with single persistent **datastore that spans across Availability Zones**
 
 Each setup will provide prerequisistes, instructions and clean up procedures.
 
