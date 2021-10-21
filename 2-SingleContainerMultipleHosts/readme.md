@@ -22,7 +22,7 @@ kind: ClusterConfig
 metadata:
   name: eksworkshop-eksctl-4nodes2azs
   region: ${AWS_REGION}
-  version: "1.19"
+  version: "1.21"
 
 availabilityZones: ["${AZS[0]}", "${AZS[1]}"]
 
