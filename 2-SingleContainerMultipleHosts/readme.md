@@ -127,10 +127,36 @@ helm upgrade --install aws-ebs-csi-driver \
 kubectl -n kube-system rollout status deployment ebs-csi-controller
 ```
 
+Now let' define a Storage Class:
 
+```
+cat << EoF > ${HOME}/mysql-storageclass.yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: mysql-gp2
+provisioner: ebs.csi.aws.com # Amazon EBS CSI driver
+parameters:
+  type: gp2
+  encrypted: 'true' # EBS volumes will always be encrypted by default
+volumeBindingMode: WaitForFirstConsumer # EBS volumes are AZ specific
+reclaimPolicy: Delete
+mountOptions:
+- debug
+EoF
+```
 
+And create it
 
+```
+kubectl create -f ${HOME}/mysql-storageclass.yaml
+```
 
+Check that it is available:
+
+```
+kubectl describe storageclass mysql-gp2
+```
 
 
 
