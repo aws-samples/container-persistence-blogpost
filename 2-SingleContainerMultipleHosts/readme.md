@@ -56,6 +56,59 @@ kubectl get nodes
 
 Create storage class for this cluster by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
 
+Here are the steps customized with the cluster name we used above:
+
+IAM policy (no changes):
+
+```
+export EBS_CSI_POLICY_NAME="Amazon_EBS_CSI_Driver"
+
+mkdir ${HOME}/environment/ebs_statefulset
+cd ${HOME}/environment/ebs_statefulset
+
+# download the IAM policy document
+curl -sSL -o ebs-csi-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/master/docs/example-iam-policy.json
+
+# Create the IAM policy
+aws iam create-policy \
+  --region ${AWS_REGION} \
+  --policy-name ${EBS_CSI_POLICY_NAME} \
+  --policy-document file://${HOME}/environment/ebs_statefulset/ebs-csi-policy.json
+
+# export the policy ARN as a variable
+export EBS_CSI_POLICY_ARN=$(aws --region ${AWS_REGION} iam list-policies --query 'Policies[?PolicyName==`'$EBS_CSI_POLICY_NAME'`].Arn' --output text)
+```
+IAM OIDC provider for the cluster (chnaged cluster name:
+
+
+```
+# Create an IAM OIDC provider for your cluster
+eksctl utils associate-iam-oidc-provider \
+  --region=$AWS_REGION \
+  --cluster=eksworkshop-eksctl-4nodes2azs \
+  --approve
+
+# Create a service account
+eksctl create iamserviceaccount \
+  --cluster eksworkshop-eksctl-4nodes2azs \
+  --name ebs-csi-controller-irsa \
+  --namespace kube-system \
+  --attach-policy-arn $EBS_CSI_POLICY_ARN \
+  --override-existing-serviceaccounts \
+  --approve
+```
+
+
+
+
+
+
+
+
+
+
+
+
 Now you have a Kubernetes Cluster that can use EBS as an external storage provider.
 
 We will now deploy a PostgreSQL container that uses this external storage.
