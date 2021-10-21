@@ -11,6 +11,8 @@ There are two high level scenarios in this use case:
 If you want to try out this example a step by step setup is provided in our EKS Workshop, it covers exactly a *MySQL database setup over two availability zones*:
 _https://www.eksworkshop.com/beginner/170_statefulset/_ (https://www.eksworkshop.com/beginner/170_statefulset/)
 
+![Alt text](/images/activestandbyMySQL.png "activestandbyMySQL")
+
 
 # Active/Active databases on 2+ containers with independent persistent datastores
 
