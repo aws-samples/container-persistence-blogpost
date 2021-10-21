@@ -12,7 +12,7 @@ Failure of a Container host in AZ1
 
 ![Alt text](/images/Cassandra6Failure.png "Cassandra6Failure")
 
-Container is restarted on the remaining host in AZ1 and reconnects to EBS exyerba storage:
+Container is restarted on the remaining host in AZ1 and reconnects to EBS external storage:
 
 ![Alt text](/images/Cassandra6Restored.png "Cassandra6Restored")
 
@@ -27,7 +27,7 @@ Create an EKS Cluster following the tutorial at https://www.eksworkshop.com/030_
 
 We will use a Cloud9 instance to issue all the commands as described in the EKS Workshop. Remember to install all prerequisites as per the above link
 
-The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will create a cluster that is using 3 worker nodes:
+The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will **create a cluster that is using 6 worker nodes**:
 
 ```
 cat << EOF > eksworkshop6nodes.yaml
@@ -65,14 +65,15 @@ eksctl create cluster -f eksworkshop6nodes.yaml
 ```
 
 This will take a few minutes, after the command completed check if the cluster is available:
+
 ```
 kubectl get nodes
 ```
 
 
-Create storage class for this cluster by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
+Create **storage class for this cluster** by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
 
-Here are the steps customized with the cluster name we used above:
+To perform this part of the tutorial You can follow the steps below that have been customized with the cluster name we used above:
 
 IAM policy (no changes):
 
@@ -95,7 +96,7 @@ aws iam create-policy \
 export EBS_CSI_POLICY_ARN=$(aws --region ${AWS_REGION} iam list-policies --query 'Policies[?PolicyName==`'$EBS_CSI_POLICY_NAME'`].Arn' --output text)
 ```
 
-IAM OIDC provider for the cluster (changed cluster name):
+IAM OIDC provider for the cluster (changed cluster name with teh one used in this tutorial):
 
 ```
 # Create an IAM OIDC provider for your cluster
@@ -114,7 +115,7 @@ eksctl create iamserviceaccount \
   --approve
 ```
 
-Configure a repository for the CSI driver
+Configure a repository for the CSI driver:
 
 ```
 # add the aws-ebs-csi-driver as a helm repo
@@ -124,7 +125,7 @@ helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-d
 helm search  repo aws-ebs-csi-driver
 ```
 
-And install it:
+And install it using Helm (remember to install helm in your Cloud 9 instance as per the instructions on the EKS Workshop linked above):
 
 ```
 helm upgrade --install aws-ebs-csi-driver \
@@ -142,7 +143,7 @@ helm upgrade --install aws-ebs-csi-driver \
 kubectl -n kube-system rollout status deployment ebs-csi-controller
 ```
 
-Now let's define a Storage Class:
+Now let's **define a Storage Class**:
 
 ```
 cat << EoF > ${HOME}/mysql-storageclass.yaml
@@ -161,7 +162,7 @@ mountOptions:
 EoF
 ```
 
-And create it
+And create it:
 
 ```
 kubectl create -f ${HOME}/mysql-storageclass.yaml
@@ -174,15 +175,15 @@ kubectl describe storageclass mysql-gp2
 ```
 
 
-
-
 Now you have a Kubernetes Cluster that can use EBS as an external storage provider.
 
 The Cluster is distributed over 3 Availability Zones with **two** workers in each AZ.
 
-To demonstrate that the application can survive the loss of a node in an AZ, we willd eploy a Cassandra cluster and simulate the loss of a worker nodei in one availability zone. The cassandra cluster will have one node in every AZ connected to an external EBS storage, as such **during the simulated failure the pod will be restarted on the remaining node in the AZ and the application will be able to reconnect to storage** (as this is external to the container and available on EBS).
+To demonstrate that the application can survive the loss of a node in an AZ, we will deploy a Cassandra cluster and simulate the loss of a worker node in one availability zone. The Cassandra Cluster will have one node in every AZ connected to an external EBS storage, as such **during the simulated failure the pod will be restarted on the remaining node in the AZ and the application will be able to reconnect to storage** (as this is external to the container and available on EBS).
 
+![Alt text](/images/Cassandra6Deployed.png "Cassandra6Deployed")
 
+Deploy the Cassandra Cluster
 
 
 
