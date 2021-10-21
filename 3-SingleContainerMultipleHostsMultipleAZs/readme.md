@@ -1,5 +1,19 @@
 # Single Container with persistent storage running across multiple Container Hosts and multiple Availability Zones
 
+There are two high level scenarios in this use case:
+1. Active/Standby Databases on two Containers with independent persistent datastores
+2. Active/Active databases on 2+ containers with independent persistent datastores
+
+
+
+# Active/Standby Databases on two Containers with independent persistent datastores
+
+If you want to try out this example a step by step setup is provided in our EKS Workshop, it covers exactly a *MySQL database setup over two availability zones*:
+_https://www.eksworkshop.com/beginner/170_statefulset/_ (https://www.eksworkshop.com/beginner/170_statefulset/)
+
+
+# Active/Active databases on 2+ containers with independent persistent datastores
+
 This part of the tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a Cassandra cluster that can withstand the loss of a full Availability Zone. A procedure for testing the setup by simulating an AZ failure is provided as well.
 
 ![Alt text](/images/CassandraSetup.png "CassandraSetup")
