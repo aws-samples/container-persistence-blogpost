@@ -48,7 +48,7 @@ Then launch it:
 eksctl create cluster -f eksworkshop4nodes.2azs.yaml
 ```
 
-This will take a few minutes, after the command completede check if the cluster is available:
+This will take a few minutes, after the command completed check if the cluster is available:
 ```
 kubectl get nodes
 ```
@@ -60,7 +60,9 @@ Now you have a Kubernetes Cluster that can use EBS as an external storage provid
 
 We will now deploy a PostgreSQL container that uses this external storage.
 
-Create a Persistent Volume Claim for our PostgreSQL container.
+As storage is provided by EBS the storage will be available in a single AZ.
+
+Create a Persistent Volume Claim for our PostgreSQL container (this uses the storage class that we prepared above).
 
 ```
 cat << EoF > pvcpostgresql.yaml
