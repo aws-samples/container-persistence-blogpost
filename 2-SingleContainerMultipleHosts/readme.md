@@ -48,6 +48,11 @@ Then launch it:
 eksctl create cluster -f eksworkshop4nodes.2azs.yaml
 ```
 
+This will take a few minutes, after the command completede check if the cluster is available:
+```
+kubectl get nodes
+```
+
 
 Create storage class for this cluster by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
 
