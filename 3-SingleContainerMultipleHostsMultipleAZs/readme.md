@@ -78,9 +78,17 @@ secretsEncryption:
 EOF
 ```
 
+And issue the create command with:
+
+```
+eksctl create cluster -f eksworkshop-medium.yaml
+```
+
 You’ll incur in AWS costs to test this setup so make sure you are tearing down the environment after your tests by using this walk-through when you’re done testing:  
   
 [https://www.eksworkshop.com/920_cleanup/](https://www.eksworkshop.com/920_cleanup/)  
+
+Or just check the clean up instructions at the end of thi section.
   
 _**Kubernetes Cluster Configuration**_  
   
@@ -99,6 +107,8 @@ We will be using EBS via CSI Drivers (check the introduction of this blog post i
 To set up EBS CSI Drivers we will use the instructions provided in our EKS Workshop:  
   
 [https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/](https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/)  
+
+You can use the instructions provided at the link as we haven't changed the EKS cluster name so all commands are already pointing to this cluster.
   
 **Define a Storage Class:**  
 A StorageClass enables administrators to describe the "classes" of storage they offer. Different classes might map to quality-of-service levels/ storage tiers, or to different environments (test/production), or to ad hoc policies determined by the storage/clusters administrators.  
@@ -332,11 +342,13 @@ In the output you’ll see that the container scheduling is now disabled for tha
 
 Now let’s delete the pod to see if it can restart:
 
+```
 kubectl delete pod cassandra-0
 
 kubectl get pods
 
 kubectl describe pods cassandra-0
+```
 
 The pod will not be able to restart and the last command will produce an output similar to:
 
@@ -372,4 +384,30 @@ We have **demonstrated how this type of setup can withstand the loss of a node i
 
 ## Clean up Instructions
 
+Delete the Cassandra stateful set:
+
+```
+kubectl delete -f cassandra-app.yaml 
+```
+
+Delete the persistent volumes. Find them by using:
+
+```
+kubectl get pv
+```
+
+
+and proceed to delete each of them with
+
+```
+kubectl delete pv *pvid*
+```
+
+Check from EBS Console that the volume have been removed.
+
+Delete the EKS cluster 
+
+```
+
+Check that the command completes successfullY: cluster is removed from EKS console and that EC2 instances are removed.
 
