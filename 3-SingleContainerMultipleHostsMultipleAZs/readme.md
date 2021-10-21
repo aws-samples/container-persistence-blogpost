@@ -46,6 +46,38 @@ To
 instanceType: t3.medium
 ```
 
+Or just use this file:
+
+```
+cat << EOF > eksworkshop-medium.yaml
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eksworkshop-eksctl
+  region: ${AWS_REGION}
+  version: "1.21"
+
+availabilityZones: ["${AZS[0]}", "${AZS[1]}", "${AZS[2]}"]
+
+managedNodeGroups:
+- name: nodegroup
+  desiredCapacity: 3
+  instanceType: t3.medium
+  ssh:
+    enableSsm: true
+
+# To enable all of the control plane logs, uncomment below:
+# cloudWatch:
+#  clusterLogging:
+#    enableTypes: ["*"]
+
+secretsEncryption:
+  keyARN: ${MASTER_ARN}
+EOF
+```
+
 You’ll incur in AWS costs to test this setup so make sure you are tearing down the environment after your tests by using this walk-through when you’re done testing:  
   
 [https://www.eksworkshop.com/920_cleanup/](https://www.eksworkshop.com/920_cleanup/)  
