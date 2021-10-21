@@ -9,11 +9,11 @@ We will details the steps for these use cases
 3. Single Container with persistent storage running across multiple Container Hosts and **multiple Availability Zones**
 4. Single container with single persistent **datastore that spans across Availability Zones**
 
-Each setup will provide prerequisistes, instructions and clean up procedures.
+Each setup will provide prerequisites, instructions and clean up procedures.
 
 **All code is provided** <u>**AS IS**</u>**: it is not meant for production workloads but for test environments only.**
 
-You may incur in costs for testing these setups so we recommend to take this into account and tear down the environments aftre performing your tests.
+You may incur in costs for testing these setups so we recommend to take this into account and tear down the environments after performing your tests.
 
 You can find a tutorial for each use case in the folders available in this repository.
 
