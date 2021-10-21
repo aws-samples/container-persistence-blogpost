@@ -20,7 +20,7 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: eksworkshop-eksctl-singleaz
+  name: eksworkshop-eksctl-4nodes2azs
   region: ${AWS_REGION}
   version: "1.19"
 
@@ -58,7 +58,7 @@ We will now deploy a PostgreSQL container that uses this external storage.
 Create a Persistent Volume Claim for our PostgreSQL container.
 
 ```
-cat << EoF > pvcpostgresql.yam
+cat << EoF > pvcpostgresql.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
