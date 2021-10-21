@@ -45,7 +45,7 @@ EOF
 
 Then launch it:
 ```
-eksctl create cluster -f eksworkshop4nodes.2azs.yaml
+eksctl create cluster -f eksworkshop4nodes2azs.yaml
 ```
 
 This will take a few minutes, after the command completed check if the cluster is available:
