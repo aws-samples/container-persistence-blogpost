@@ -35,7 +35,9 @@ You’d need to create an Amazon EKS cluster. To do so it’s very easy to lever
 To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/). This will help You in setting up an AWS Cloud9 instance to use to issue the commands in this tutorial to your own EKS cluster. Use the link but when it comes to the creation of the ekscluster please refer to the instructions provided here.
   
 If you want to perform the final failover test (see below) create the cluster using t3.medium (instead of t3.small) instances, i.e. when following the instructions at:  
-[https://www.eksworkshop.com/030_eksctl/launcheks/](https://www.eksworkshop.com/030_eksctl/launcheks/)  
+[https://www.eksworkshop.com/030_eksctl/launcheks/](https://www.eksworkshop.com/030_eksctl/launcheks/).
+
+[ We are using t3.medium because in the failure scenario having a t3.small would show a message that the pod cannot be restarted due to lack of resources while it is actually not restartable because the data that should be linked to the pod is in the unavailable AZ]
   
 Change the line from the eksworkshop.yaml file from:  
 
