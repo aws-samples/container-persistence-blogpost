@@ -186,106 +186,273 @@ To demonstrate that the application can survive the loss of a node in an AZ, we 
 
 Deploy the Cassandra Cluster
 
-
-
-
-# Clean up Instructions
-
-Remember to delete the AWS Cloud9 instance following these instructions (as per the eksworkshop clean up):
-1. Go to your Cloud9 Environment
-2. Select the environment named eksworkshop and pick delete
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Now we will **create a Cassandra Cluster** leveraging an example straight from Kubernetes documentation:  
+[https://kubernetes.io/docs/tutorials/stateful-application/cassandra/](https://kubernetes.io/docs/tutorials/stateful-application/cassandra/)  
+  
+Create an headless service for Cassandra  
+```
+cat > cassandra-svc.yaml << EOF  
+apiVersion: v1  
+kind: Service  
+metadata:  
+  labels:  
+    app: cassandra  
+  name: cassandra  
+spec:  
+  clusterIP: None  
+  ports:  
+    - port: 9042  
+  selector:  
+    app: cassandra  
+EOF
+```
+Create the service in Kubernetes:  
+```
+kubectl create -f cassandra-svc.yaml
+```
+Now we will create the Cassandra cluster itself (notice that the only change from the Kubernetes documentation example is the name of the storage class to be used, a great plus for workloads portability across different Kubernetes storage options):  
 
 ```
-cat << EoF > apppostgresql.yam
-kind: Service
-metadata:
-  name: postgres
-spec:
-  ports:
-    - port: 5432
-  selector:
-    app: postgres
----
+cat > cassandra-app.yaml << EOF
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: postgres
+  name: cassandra
   labels:
-    name: postgres
+    app: cassandra
 spec:
-  strategy:
-    rollingUpdate:
-       maxSurge: 1
-       maxUnavailable: 1
-    type: RollingUpdate
-  replicas: 1
+  serviceName: cassandra
+  replicas: 3
   selector:
     matchLabels:
-      app: postgres
+      app: cassandra
   template:
     metadata:
       labels:
-        app: postgres
+        app: cassandra
     spec:
+      terminationGracePeriodSeconds: 1800
       containers:
-        - name: postgres
-          image: postgres:9.6
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-pass
-                  key: password.txt
-          ports:
-            - containerPort: 5432
-              name: postgres
-          volumeMounts:
-            - mountPath: /var/lib/postgresql
-              name: pg-storage
-      volumes:
-        - name: pg-storage
-          persistentVolumeClaim:
-            claimName: pvcpostgresql
-EoF
+      - name: cassandra
+        image: gcr.io/google-samples/cassandra:v11
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7000
+          name: intra-node
+        - containerPort: 7001
+          name: tls-intra-node
+        - containerPort: 7199
+          name: jmx
+        - containerPort: 9042
+          name: cql
+        resources:
+          limits:
+            cpu: "500m"
+            memory: 1Gi
+          requests:
+            cpu: "500m"
+            memory: 1Gi
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+        lifecycle:
+          preStop:
+            exec:
+              command: 
+              - /bin/sh
+              - -c
+              - nodetool drain
+        env:
+          - name: MAX_HEAP_SIZE
+            value: 512M
+          - name: HEAP_NEWSIZE
+            value: 100M
+          - name: CASSANDRA_SEEDS
+            value: "cassandra-0.cassandra.default.svc.cluster.local"
+          - name: CASSANDRA_CLUSTER_NAME
+            value: "K8Demo"
+          - name: CASSANDRA_DC
+            value: "DC1-K8Demo"
+          - name: CASSANDRA_RACK
+            value: "Rack1-K8Demo"
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - /ready-probe.sh
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: cassandra-data
+          mountPath: /cassandra_data
+  volumeClaimTemplates:
+  - metadata:
+      name: cassandra-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: mysql-gp2
+      resources:
+        requests:
+          storage: 1Gi
+EOF
 ```
+  
+Launch the StatefulSet using:  
+```
+kubectl apply -f cassandra-app.yaml 
+```
+It will take a while to create the deployment so you can monitor pod creation using:  
+```
+kubectl get pods --watch
+```
+And finally (usually after a few minutes) check that the StatefulSet has been deployed correctly:  
+```
+kubectl get statefulset
+```
+You can now check that the Cassandra cluster is operational by issuing this command (it will log you into a Cassandra node and check service availability):  
+```
+kubectl exec cassandra-0 -- nodetool status
+```
+You should see something like this; indicating that the three Cassandra nodes active (Up-U) are operational (Normal-N):
 
-Check that it is running:
+![Alt text](/images/1-cassandraup.png "1-cassandraup")
+
+You can also check that the containers are running in different AZs, each one with its own dedicated storage  
 ```
+kubectl get pods -o wide
+
+kubectl get pvc
+```
+You should see three pods for Cassandra nodes and three volumes of 1 GB bound to the relevant pods:
+
+![Alt text](/images/2-volumes.png "2-volumes")
+
+
+**Failover Test**  
+Now we will simulate a failure scenario where one node in one AZ becomes unavailable.  
+To see that data gets persisted even in case of a failure let’s write some information into the Cassandra cluster.  
+Connect to one node:  
+```
+kubectl exec -it cassandra-0 -- cqlsh
+```
+And create a small table in Cassandra:  
+```
+CREATE KEYSPACE awsdemo WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };  
+CONSISTENCY QUORUM;  
+use awsdemo;  
+CREATE TABLE awsregions (regionCode text PRIMARY KEY, city text, country text);  
+INSERT into awsregions(regionCode, city, country) values ('eu-south-1','Milan', 'Italy');  
+INSERT into awsregions(regionCode, city, country) values ('af-south-1', 'Cape Town', 'South Africa');
+```
+Check that data has been written and exit from container:  
+```
+SELECT * FROM awsdemo.awsregions;  
+exit
+```
+You should get an output similar to this:
+
+![Alt text](/images/3-Cassandradata.png "3-Cassandradata")
+
+Check that replication data is present for the Milan region (eu-south-1) data:  
+```
+kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1**_
+```
+You will see a list of the Cassandra nodes:
+
+![Alt text](/images/3-Cassandraips.png "3-Cassandraips")
+
+Now we will simulate a failure for one AZ (by taking down the related Kubernetes node) and see how the setup behaves.  
+Let’s cordon ([https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/)) the node where pod cassandra-0 is executing:  
+```
+NODE=`kubectl get pods cassandra-0 -o json | jq -r .spec.nodeName`
+
+kubectl cordon ${NODE}
+
+kubectl get nodes
+```
+In the output you’ll see that the container scheduling is now disabled for that node:
+
+![Alt text](/images/5-cordon.png "5-cordon")
+
+Now let’s delete the pod to see if it can restart:
+
+```
+kubectl delete pod cassandra-0
+
 kubectl get pods
+
+kubectl describe pods cassandra-0
 ```
-Connect to the container:
+
+The pod will not be able to restart and the last command will produce an output similar to:
+
+![Alt text](/images/6-podscheduling.png "6-podscheduling")
+
+As you can see from the latest output the pod cannot be scheduled as there are no Kubernetes nodes that can connect to the data (as for demo purposes we just had **only one node per AZ in our setup** and the EBS volume for the container exists only in one availability zone):
+
+![Alt text](/images/7-onenodeperaz.png "7-onenodeperaz")
+
+Let's bring the node back to service (simulating an AZ coming back up):  
 ```
-kubectl exec -it Containerid bash
+kubectl uncordon $NODE
+```
+The pod will restart, we can check that with:  
+```
+kubectl get pods -o wide
+```
+The Cassandra cluster will be operational again in a few seconds:  
+```
+kubectl exec cassandra-0 -- nodetool status
+```
+And finally let’s check that the data is still present:  
+```
+kubectl exec cassandra-0 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
+```
+And it is distributed on all Cassandra nodes:  
+```
+kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1
+```
+The **Cassandra cluster is back online** and **data has been preserved**.  
+ 
+We have **demonstrated how this type of setup can withstand the loss of a node in one AZ** and **how Amazon EBS storage plays a role in persisting the relevant data** for the application.
+
+## Clean up Instructions
+
+Delete the Cassandra stateful set:
+
+```
+kubectl delete -f cassandra-app.yaml 
+```
+
+Delete the persistent volumes. Find them by using:
+
+```
+kubectl get pv
 ```
 
 
+And proceed to delete each of them with
+
+```
+kubectl delete pv *pvid*
+```
+
+Check from EBS Console that the volume have been removed.
+
+Delete the EKS cluster 
+
+```
+
+Check that the command completes successfullY: cluster is removed from EKS console and that EC2 instances are removed.
+
+
+Remember to delete also Your AWS Cloud9 instance following these instructions (as per the eksworkshop clean up):
+1. Go to your Cloud9 Environment
+2. Select the environment named eksworkshop and pick delete
 
