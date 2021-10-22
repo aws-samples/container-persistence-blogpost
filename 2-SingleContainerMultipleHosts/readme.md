@@ -335,9 +335,10 @@ You should see three pods for Cassandra nodes and three volumes of 1 GB bound to
 
 
 **Failover Test**  
-Now we will simulate a failure scenario where one node in one AZ becomes unavailable.  
-To see that data gets persisted even in case of a failure let’s write some information into the Cassandra cluster.  
-Connect to one node:  
+Now we will simulate a failure scenario where one node in one AZ becomes unavailable (as we have just one node per AZ this can reproduce a full AZ failure).  
+To see that data gets persisted even in case of a failure let’s write some information into the Cassandra cluster before simulating the failure.  
+
+Connect to node zero of the Cassandra cluster:  
 ```
 kubectl exec -it cassandra-0 -- cqlsh
 ```
@@ -363,11 +364,11 @@ Check that replication data is present for the Milan region (eu-south-1) data:
 ```
 kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1**_
 ```
-You will see a list of the Cassandra nodes:
+You will see the list of the Cassandra nodes:
 
 ![Alt text](/images/3-Cassandraips.png "3-Cassandraips")
 
-Now we will simulate a failure for one AZ (by taking down the related Kubernetes node) and see how the setup behaves.  
+Now we will simulate a failure for one AZ (by taking down the related Kubernetes container host node) and see how the setup behaves.  
 Let’s cordon ([https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/)) the node where pod cassandra-0 is executing:  
 ```
 NODE=`kubectl get pods cassandra-0 -o json | jq -r .spec.nodeName`
@@ -380,7 +381,7 @@ In the output you’ll see that the container scheduling is now disabled for tha
 
 ![Alt text](/images/5-cordon.png "5-cordon")
 
-Now let’s delete the pod to see if it can restart:
+Now let’s delete the pod (to simulate failure in the AZ) and see if it can restart:
 
 ```
 kubectl delete pod cassandra-0
@@ -398,7 +399,36 @@ As you can see from the latest output the pod cannot be scheduled as there are n
 
 ![Alt text](/images/7-onenodeperaz.png "7-onenodeperaz")
 
-Let's bring the node back to service (simulating an AZ coming back up):  
+Let's see that the Cassandra cluster is still operational even if one AZ is offline.
+
+if we issue again a command to node 0 we can see that it is not responding:
+
+```
+kubectl exec cassandra-0 -- nodetool status
+```
+Issuing the same command to node 1 will show us the Cassandra cluster status:
+
+```
+kubectl exec cassandra-1 -- nodetool status
+```
+
+As we can see one node of the Cassandra cluster is down (as expected)
+
+![Alt text](/images/nodetoolstatusonedown.png "nodetoolstatusonedown")
+
+But data is still available
+
+```
+kubectl exec cassandra-1 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
+```
+As it was set to be protected over teh three nodes:
+```
+kubectl exec -it cassandra-1 -- nodetool getendpoints awsdemo awsregions eu-south-1
+```
+
+![Alt text](/images/cassandradatastillpresent.png "cassandradatastillpresent")
+
+Let's **bring the node back to service (simulating an AZ coming back up)**:  
 ```
 kubectl uncordon $NODE
 ```
@@ -406,7 +436,7 @@ The pod will restart, we can check that with:
 ```
 kubectl get pods -o wide
 ```
-The Cassandra cluster will be operational again in a few seconds:  
+The Cassandra cluster will be operational again in a few seconds (we can now iuse node cassandra-0 to check the status):  
 ```
 kubectl exec cassandra-0 -- nodetool status
 ```
@@ -418,6 +448,8 @@ And it is distributed on all Cassandra nodes:
 ```
 kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1
 ```
+![Alt text](/images/cassandradataonthreenodes.png "cassandradataonthreenodes")
+
 The **Cassandra cluster is back online** and **data has been preserved**.  
  
 We have **demonstrated how this type of setup can withstand the loss of a node in one AZ** and **how Amazon EBS storage plays a role in persisting the relevant data** for the application.
