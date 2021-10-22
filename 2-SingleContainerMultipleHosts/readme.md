@@ -5,7 +5,7 @@ We will **simulate a the failure of one container host of the EKS cluster in a s
 
 You can see the flow in these diagrams (**focus on Availability Zone 1**):
 
-Initial Configuration where each conatiner in ech AZ is running and storing data on an external EBS volume:
+Initial Configuration where each container in ech AZ is running and storing data on an external EBS volume:
 
 ![Alt text](/images/Cassandra6Deployed.png "Cassandra6Deployed")
 
