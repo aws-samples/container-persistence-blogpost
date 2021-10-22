@@ -299,7 +299,7 @@ You should see three pods for Cassandra nodes and three volumes of 1 GB bound to
 ![Alt text](/images/2-volumes.png "2-volumes")
 
 
-## Failover Test  
+## Availability Zone Failure Test  
 Now we will simulate **a failure scenario where one node in one AZ becomes unavailable (as we have just one node per AZ this can reproduce a full AZ failure)**. 
 
 ![Alt text](/images/Cassandra3NodesFailure.png "Cassandra3NodesFailure")
@@ -384,20 +384,24 @@ As we can see one node of the Cassandra cluster is down (DN is displayed for nod
 
 ![Alt text](/images/nodetoolstatusonedown.png "nodetoolstatusonedown")
 
-But data is still available:
+But when can see that data is still available in the Cassandra cluster by conencting to node cassandra-1:
 
 ```
 kubectl exec cassandra-1 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
 ```
-You shoulkd see something similar to this:
+You should see something similar to this:
+
 ![Alt text](/images/cassandradatastillpresent.png "cassandradatastillpresent")
 
-As it was set to be protected over the three nodes:
+This is because data was set to be protected over the three nodes:
 ```
 kubectl exec -it cassandra-1 -- nodetool getendpoints awsdemo awsregions eu-south-1
 ```
 
+So **we demonstrated that in case of an Availability Zone failure the Cassandra cluster is able to still provide access to data** thanks to the cluster configuration that gets data copied to multiple datastores in multiple AZs.
 
+
+## Failover test
 
 Let's **bring the node back to service (simulating an AZ coming back up)**:  
 ```
@@ -407,7 +411,7 @@ The pod will restart, we can check that with:
 ```
 kubectl get pods -o wide
 ```
-The Cassandra cluster will be operational again in a few seconds (we can now iuse node cassandra-0 to check the status):  
+The Cassandra cluster will be operational again in a few seconds (we can now use node cassandra-0 to check the status as it is back and active):  
 ```
 kubectl exec cassandra-0 -- nodetool status
 ```
@@ -421,7 +425,7 @@ kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-sout
 ```
 ![Alt text](/images/cassandradataonthreenodes.png "cassandradataonthreenodes")
 
-The **Cassandra cluster is back online** and **data has been preserved**.  
+The **Cassandra cluster is back online** and **data has been preserved**, teh container restart was automatic as soon as the AZ was available.  
  
 We have **demonstrated how this type of setup can withstand the loss of an entire AZ** and **how Amazon EBS storage plays a role (together with the Cassandra data replication) in persisting the relevant data** for the application.
 
