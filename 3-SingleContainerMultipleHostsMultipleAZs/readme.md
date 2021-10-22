@@ -29,18 +29,17 @@ We will simulate a full Availability Zone failure and show that the database can
 ![Alt text](/images/Cassandra3NodesFailure.png "Cassandra3NodesFailure")
 
 
-**Prerequisites**  
+## Prerequisites
   
 You’d need to create an Amazon EKS cluster. To do so it’s very easy to leverage our EKS Workshop ([https://www.eksworkshop.com](https://www.eksworkshop.com)) as it provides a simple yet powerful environment that comes also with a handy AWS Cloud9 instance that you can use to issue the commands below to your Amazon EKS cluster.  
   
-To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/). This will help You in setting up an AWS Cloud9 instance to use to issue the commands in this tutorial to your own EKS cluster. Use the link but when it comes to the creation of the ekscluster please refer to the instructions provided here.
+To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/). This will help You in setting up an AWS Cloud9 instance to use to issue the commands in this tutorial to your own EKS cluster. Use the link but when it comes to the creation of the EKS cluster please refer to the instructions provided here.
   
-If you want to perform the final failover test (see below) create the cluster using t3.medium (instead of t3.small) instances, i.e. when following the instructions at:  
-[https://www.eksworkshop.com/030_eksctl/launcheks/](https://www.eksworkshop.com/030_eksctl/launcheks/).
+We are changing teh setup of the EKS cluster to use t3.medium instances intraed of t3.small.
 
 [ We are using t3.medium because in the failure scenario having a t3.small would show a message that the pod cannot be restarted due to lack of resources while it is actually not restartable because the data that should be linked to the pod is in the unavailable AZ, see below for more details]
   
-Change the line from the eksworkshop.yaml file from:  
+So we changed the line from the eksworkshop.yaml file from:  
 
 ```
 instanceType: t3.small
@@ -52,7 +51,7 @@ To
 instanceType: t3.medium
 ```
 
-Or just use this file:
+You can just follow these stepes to craete an EKS cluster for this use case:
 
 ```
 cat << EOF > eksworkshop-medium.yaml
@@ -94,9 +93,9 @@ You’ll incur in AWS costs to test this setup so make sure you are tearing down
   
 [https://www.eksworkshop.com/920_cleanup/](https://www.eksworkshop.com/920_cleanup/)  
 
-Or just check the clean up instructions at the end of thi section.
+Or just check the clean up instructions at the end of this section.
   
-_**Kubernetes Cluster Configuration**_  
+### *Kubernetes Cluster Configuration*
   
 After creating the cluster make sure that the nodes are in different Availabily Zones:  
 ```
