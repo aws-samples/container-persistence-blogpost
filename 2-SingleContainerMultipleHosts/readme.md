@@ -430,7 +430,7 @@ And it is still set to be protected over the three nodes:
 kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1
 ```
 
-![Alt text](/images/cassandradatastillpresent.png "cassandradatastillpresent")
+![Alt text](/images/cassandraips.png "cassandradataips")
 
 
 The **Cassandra pod in AZ 1 is back online** even after one Container host in zone 1 has failed and **data has been preserved**.  
