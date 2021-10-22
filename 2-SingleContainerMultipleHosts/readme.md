@@ -404,7 +404,7 @@ The pod will restart and the last command will produce an output (showing that t
 
 This happened because we have **two node per AZ in our setup** and the EBS volume for the container is available in that availability zone to be reconnected:
 
-![Alt text](/images/7-onenodeperaz.png "7-onenodeperaz")
+![Alt text](/images/Cassandra6RestoredFocus.png "Cassandra6RestoredFocus")
 
 Let's see that the **Cassandra cluster is still operational even if one container host is offline**.
 
