@@ -11,7 +11,7 @@ This tutorial will drive you through the **creation of Docker container that lev
 ![Alt text](/images/SingleContainerDockerVolume.png "SingleContainerDockerVolume")
 
 
-This setup uses AWS Cloud9 as an environment to deploy your container and storage used by Docker volume is local to that Cloud9 instance.
+This setup uses **AWS Cloud9 as an environment to deploy your container and storage used by Docker volume is local to that Cloud9 instance**.
 
 
 If you want to test how to persist data for a single container running on a single Container host out you could use AWS Cloud9 ([https://aws.amazon.com/cloud9/](https://aws.amazon.com/cloud9/)). We recommend using an AWS Cloud9 desktop since this provides an environment to run any commands without needing to modify your own systems, and it provides a consistent experience that has been tested by the author. 
