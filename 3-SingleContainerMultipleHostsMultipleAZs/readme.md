@@ -37,7 +37,7 @@ To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.co
 If you want to perform the final failover test (see below) create the cluster using t3.medium (instead of t3.small) instances, i.e. when following the instructions at:  
 [https://www.eksworkshop.com/030_eksctl/launcheks/](https://www.eksworkshop.com/030_eksctl/launcheks/).
 
-[ We are using t3.medium because in the failure scenario having a t3.small would show a message that the pod cannot be restarted due to lack of resources while it is actually not restartable because the data that should be linked to the pod is in the unavailable AZ]
+[ We are using t3.medium because in the failure scenario having a t3.small would show a message that the pod cannot be restarted due to lack of resources while it is actually not restartable because the data that should be linked to the pod is in the unavailable AZ, see below for more details]
   
 Change the line from the eksworkshop.yaml file from:  
 
