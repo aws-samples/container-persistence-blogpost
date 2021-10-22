@@ -25,7 +25,7 @@ You may incur in costs for testing this setup so we recommend to take this into 
 
 ## Prerequisites
 
-To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/). This will help You in setting up an AWS Cloud9 instance to use to issue the commands in this tutorial to your own EKS cluster. Use the link to prepare the environment but when it comes to the creation of the ekscluster (https://www.eksworkshop.com/030_eksctl/launcheks/) please refer to the instructions provided here.
+To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/). This will help You in setting up an AWS Cloud9 instance to use to issue the commands in this tutorial to your own EKS cluster. Use the link to prepare the environment but when it comes to the creation of the EKS cluster (https://www.eksworkshop.com/030_eksctl/launcheks/) please refer to the instructions provided here.
 
 We will use an AWS Cloud9 instance to issue all the commands as described in the EKS Workshop. Remember to install all prerequisites as per the above link.
 
