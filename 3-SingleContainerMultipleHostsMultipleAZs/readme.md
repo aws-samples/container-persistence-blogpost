@@ -20,7 +20,7 @@ Remember to clean your environment after the tests by following the relevant cle
 
 # Active/Active databases on 2+ containers with independent persistent datastores
 
-This part of the tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a Cassandra cluster that can withstand the loss of a full Availability Zone. A procedure for testing the setup by simulating an AZ failure is provided as well.
+This part of the tutorial will drive you through the **creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a Cassandra cluster that can withstand the loss of a full Availability Zone**. A procedure for testing the setup by simulating an AZ failure is provided as well.
 
 ![Alt text](/images/CassandraSetup.png "CassandraSetup")
 
