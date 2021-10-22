@@ -421,7 +421,7 @@ kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-sout
 
 The **Cassandra cluster is back online** and **data has been preserved**.  
  
-We have **demonstrated how this type of setup can withstand the loss of a node in one AZ** and **how Amazon EBS storage plays a role in persisting the relevant data** for the application.
+We have **demonstrated how this type of setup can withstand the loss of an entire AZ** and **how Amazon EBS storage plays a role (together with the Cassandra data replication) in persisting the relevant data** for the application.
 
 ## Clean up Instructions
 
