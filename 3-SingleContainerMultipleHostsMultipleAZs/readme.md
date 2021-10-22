@@ -23,13 +23,16 @@ This part of the tutorial will drive you through the creation of Kubernetes clus
 
 ![Alt text](/images/CassandraSetup.png "CassandraSetup")
 
+We will simulate a full Availability Zone failure and show that the database can withstand the loss of the AZ thanks to the fact that data is protected over multiple AZs:
+
+![Alt text](/images/Cassandra3NodesFailure.png "Cassandra3NodesFailure")
 
 
 **Prerequisites**  
   
 You’d need to create an Amazon EKS cluster. To do so it’s very easy to leverage our EKS Workshop ([https://www.eksworkshop.com](https://www.eksworkshop.com)) as it provides a simple yet powerful environment that comes also with a handy AWS Cloud9 instance that you can use to issue the commands below to your Amazon EKS cluster.  
   
-To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/)  
+To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/). This will help You in setting up an AWS Cloud9 instance to use to issue the commands in this tutorial to your own EKS cluster. Use the link but when it comes to the creation of the ekscluster please refer to the instructions provided here.
   
 If you want to perform the final failover test (see below) create the cluster using t3.medium (instead of t3.small) instances, i.e. when following the instructions at:  
 [https://www.eksworkshop.com/030_eksctl/launcheks/](https://www.eksworkshop.com/030_eksctl/launcheks/)  
