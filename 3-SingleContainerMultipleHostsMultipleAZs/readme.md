@@ -16,6 +16,7 @@ _https://www.eksworkshop.com/beginner/170_statefulset/_ (https://www.eksworkshop
 
 ![Alt text](/images/activestandbyMySQL.png "activestandbyMySQL")
 
+Remember to clean your environment after the tests by following the relevant cleanup instructions: https://www.eksworkshop.com/beginner/170_statefulset/cleanup/
 
 # Active/Active databases on 2+ containers with independent persistent datastores
 
