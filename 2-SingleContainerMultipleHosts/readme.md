@@ -393,7 +393,7 @@ kubectl describe pods cassandra-0
 
 The pod will restart and the last command will produce an output (showing that the pod was able to restart and reconnect the relevant datastore from EBS) similar to:
 
-![Alt text](/images/cassandra6restartpod.png "cassandra6restartpod)
+![Alt text](/images/cassandra6restartpod.png "cassandra6restartpod")
 
 This happened because we have **two node per AZ in our setup** and the EBS volume for the container is available in that availability zone to be reconnected:
 
