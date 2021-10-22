@@ -368,7 +368,7 @@ You should get an output similar to this:
 
 Check that replication data is present for the Milan region (eu-south-1) data:  
 ```
-kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1**_
+kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1
 ```
 You will see the list of the Cassandra nodes:
 
