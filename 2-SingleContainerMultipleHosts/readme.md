@@ -338,7 +338,7 @@ You should see three pods for Cassandra nodes and three volumes of 1 GB bound to
 
 
 ## Failover Test
-Now we will simulate a **failure scenario where one container host node in one AZ becomes unavailable** (as we have two nodes per AZ so we expect the container to start on the operational container host available in the same AZ and reconnect to storage).  
+Now we will simulate a **failure scenario where one container host node in one AZ becomes unavailable** (as we have two nodes per AZ we expect the container to start on the operational container host available in the same AZ and reconnect to storage).  
 
 ![Alt text](/images/Cassandra6RestoredFocus.png "Cassandra6RestoredFocus")
 
