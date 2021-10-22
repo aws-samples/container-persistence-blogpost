@@ -300,9 +300,9 @@ You should see three pods for Cassandra nodes and three volumes of 1 GB bound to
 ![Alt text](/images/2-volumes.png "2-volumes")
 
 
-**Failover Test**  
+## Failover Test  
 Now we will simulate a failure scenario where one node in one AZ becomes unavailable (as we have just one node per AZ this can reproduce a full AZ failure).  
-To see that data gets persisted even in case of a failure let’s write some information into the Cassandra cluster before simulating the failure.  
+To see that data gets persisted even in case of a failure **let’s write some information into the Cassandra cluster before simulating the failure**.  
 
 Connect to node zero of the Cassandra cluster:  
 ```
@@ -334,7 +334,7 @@ You will see the list of the Cassandra nodes:
 
 ![Alt text](/images/3-Cassandraips.png "3-Cassandraips")
 
-Now we will simulate a failure for one AZ (by taking down the related Kubernetes container host node) and see how the setup behaves.  
+Now **we will simulate a failure for one AZ** (by taking down the related Kubernetes container host node) and see how the setup behaves.  
 Let’s cordon ([https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/)) the node where pod cassandra-0 is executing:  
 ```
 NODE=`kubectl get pods cassandra-0 -o json | jq -r .spec.nodeName`
@@ -365,7 +365,7 @@ As you can see from the latest output the pod cannot be scheduled as there are n
 
 ![Alt text](/images/7-onenodeperaz.png "7-onenodeperaz")
 
-Let's see that the Cassandra cluster is still operational even if one AZ is offline.
+Let's **check that the Cassandra cluster is still operational even if one AZ is offline**.
 
 if we issue again a command to node 0 we can see that it is not responding:
 
@@ -378,21 +378,24 @@ Issuing the same command to node 1 will show us the Cassandra cluster status:
 kubectl exec cassandra-1 -- nodetool status
 ```
 
-As we can see one node of the Cassandra cluster is down (as expected)
+As we can see one node of the Cassandra cluster is down (DN is displayed for node cassandra-0), as expected.
 
 ![Alt text](/images/nodetoolstatusonedown.png "nodetoolstatusonedown")
 
-But data is still available
+But data is still available:
 
 ```
 kubectl exec cassandra-1 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
 ```
-As it was set to be protected over teh three nodes:
+You shoulkd see something similar to this:
+![Alt text](/images/cassandradatastillpresent.png "cassandradatastillpresent")
+
+As it was set to be protected over the three nodes:
 ```
 kubectl exec -it cassandra-1 -- nodetool getendpoints awsdemo awsregions eu-south-1
 ```
 
-![Alt text](/images/cassandradatastillpresent.png "cassandradatastillpresent")
+
 
 Let's **bring the node back to service (simulating an AZ coming back up)**:  
 ```
@@ -406,7 +409,7 @@ The Cassandra cluster will be operational again in a few seconds (we can now ius
 ```
 kubectl exec cassandra-0 -- nodetool status
 ```
-And finally let’s check that the data is still present:  
+And finally **let’s check that the data is still present**:  
 ```
 kubectl exec cassandra-0 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
 ```
