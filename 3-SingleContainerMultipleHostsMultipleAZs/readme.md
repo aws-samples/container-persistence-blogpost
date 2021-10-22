@@ -416,3 +416,6 @@ Delete the EKS cluster
 
 Check that the command completes successfullY: cluster is removed from EKS console and that EC2 instances are removed.
 
+Remember to delete also Your AWS Cloud9 instance following these instructions (as per the eksworkshop clean up):
+1. Go to your Cloud9 Environment
+2. Select the environment named eksworkshop and pick delete
