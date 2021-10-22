@@ -334,9 +334,9 @@ You should see three pods for Cassandra nodes and three volumes of 1 GB bound to
 ![Alt text](/images/2-volumes.png "2-volumes")
 
 
-**Failover Test**  
-Now we will simulate a failure scenario where one node in one AZ becomes unavailable (as we have just one node per AZ this can reproduce a full AZ failure).  
-To see that data gets persisted even in case of a failure let’s write some information into the Cassandra cluster before simulating the failure.  
+## Failover Test
+Now we will simulate a failure scenario where one container host node in one AZ becomes unavailable (as we have two nodes per AZ so we expect that the coonatiner to start on the operational container host in the same AZ and reconnect to storage).  
+To see that data gets persisted even in case of a failure **let’s write some information into the Cassandra cluster before simulating the failure**.  
 
 Connect to node zero of the Cassandra cluster:  
 ```
@@ -379,7 +379,7 @@ kubectl get nodes
 ```
 In the output you’ll see that the container scheduling is now disabled for that node:
 
-![Alt text](/images/5-cordon.png "5-cordon")
+![Alt text](/images/cordon6nodes.png "cordon6nodes")
 
 Now let’s delete the pod (to simulate failure in the AZ) and see if it can restart:
 
@@ -391,7 +391,7 @@ kubectl get pods
 kubectl describe pods cassandra-0
 ```
 
-The pod will not be able to restart and the last command will produce an output similar to:
+The pod will restart and the last command will produce an output similar to:
 
 ![Alt text](/images/6-podscheduling.png "6-podscheduling")
 
@@ -399,9 +399,9 @@ As you can see from the latest output the pod cannot be scheduled as there are n
 
 ![Alt text](/images/7-onenodeperaz.png "7-onenodeperaz")
 
-Let's see that the Cassandra cluster is still operational even if one AZ is offline.
+Let's see that the Cassandra cluster is still operational even if one container host is offline.
 
-if we issue again a command to node 0 we can see that it is not responding:
+We can issue again commands to node 0 as it has been restarted on the container hiost available in AZ 1:
 
 ```
 kubectl exec cassandra-0 -- nodetool status
@@ -409,48 +409,24 @@ kubectl exec cassandra-0 -- nodetool status
 Issuing the same command to node 1 will show us the Cassandra cluster status:
 
 ```
-kubectl exec cassandra-1 -- nodetool status
+kubectl exec cassandra-0 -- nodetool status
 ```
+We can see that all Cassandra nodes are active
 
-As we can see one node of the Cassandra cluster is down (as expected)
-
-![Alt text](/images/nodetoolstatusonedown.png "nodetoolstatusonedown")
-
-But data is still available
+And the data is still available
 
 ```
-kubectl exec cassandra-1 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
+kubectl exec cassandra-0 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
 ```
-As it was set to be protected over teh three nodes:
+And it is still set to be protected over the three nodes:
 ```
 kubectl exec -it cassandra-1 -- nodetool getendpoints awsdemo awsregions eu-south-1
 ```
 
 ![Alt text](/images/cassandradatastillpresent.png "cassandradatastillpresent")
 
-Let's **bring the node back to service (simulating an AZ coming back up)**:  
-```
-kubectl uncordon $NODE
-```
-The pod will restart, we can check that with:  
-```
-kubectl get pods -o wide
-```
-The Cassandra cluster will be operational again in a few seconds (we can now iuse node cassandra-0 to check the status):  
-```
-kubectl exec cassandra-0 -- nodetool status
-```
-And finally let’s check that the data is still present:  
-```
-kubectl exec cassandra-0 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
-```
-And it is distributed on all Cassandra nodes:  
-```
-kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1
-```
-![Alt text](/images/cassandradataonthreenodes.png "cassandradataonthreenodes")
 
-The **Cassandra cluster is back online** and **data has been preserved**.  
+The **Cassandra pod in AZ 1 is back online** even after one Container host in zone 1 has failed and **data has been preserved**.  
  
 We have **demonstrated how this type of setup can withstand the loss of a node in one AZ** and **how Amazon EBS storage plays a role in persisting the relevant data** for the application.
 
