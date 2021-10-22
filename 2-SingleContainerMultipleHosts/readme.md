@@ -1,34 +1,37 @@
 # Single Container with persistent storage running across multiple Container Hosts
-This part of the tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a Cassandra cluster that can withstand the loss of a Container Host.
+This part of the tutorial will drive you through the creation of Kubernetes cluster (on Amazon EKS), configuration of backing storage for containers (Amazon EBS) and in the end you’ll be able to deploy a Cassandra cluster that can cope with the loss of a Container Host.
 
 We will **simulate a the failure of one container host of the EKS cluster in a single AZ** to demonstrate how an external storage (in this case EBS) can allow the application to withstand a Container host failure.
+
 You can see the flow in these diagrams (**focus on Availability Zone 1**):
 
-Initial Configuration where each conatiner in ech AZ is running and storing data on an extrenal EBS volume:
+Initial Configuration where each conatiner in ech AZ is running and storing data on an external EBS volume:
 
 ![Alt text](/images/Cassandra6Deployed.png "Cassandra6Deployed")
 
-Failure of a Container host in AZ1
+Failure of **a Container host in AZ1**:
 
 ![Alt text](/images/Cassandra6Failure.png "Cassandra6Failure")
 
-Container is restarted on the remaining host in AZ1 and reconnects to EBS external storage:
+Container is **restarted** on the remaining host **in AZ1 and reconnects to EBS external storage**:
 
 ![Alt text](/images/Cassandra6Restored.png "Cassandra6Restored")
 
 
 **All code is provided** <u>**AS IS**</u>**: it is not meant for production workloads but for test environments only.**
 
-You may incur in costs for testing this setup so we recommend to take this into account and tear down the environments after performing your tests.
+You may incur in costs for testing this setup so we recommend to take this into account and tear down the environments after performing your tests (see the end of this walkthrough for detailed instructions on this).
 
 
 ## Prerequisites
 
-To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/). This will help You in setting up an AWS Cloud9 instance to use to issue the commands in this tutorial to your own EKS cluster. Use the link but when it comes to the creation of the ekscluster please refer to the instructions provided here.
+To create an EKS Cluster you can follow these steps: [https://www.eksworkshop.com/020_prerequisites/self_paced/account/](https://www.eksworkshop.com/020_prerequisites/self_paced/account/). This will help You in setting up an AWS Cloud9 instance to use to issue the commands in this tutorial to your own EKS cluster. Use the link to prepare the environment but when it comes to the creation of the ekscluster (https://www.eksworkshop.com/030_eksctl/launcheks/) please refer to the instructions provided here.
 
-We will use a Cloud9 instance to issue all the commands as described in the EKS Workshop. Remember to install all prerequisites as per the above link.
+We will use an AWS Cloud9 instance to issue all the commands as described in the EKS Workshop. Remember to install all prerequisites as per the above link.
 
-The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will **create a cluster that is using 6 worker nodes**:
+The ONLY difference is that at step 3 (https://www.eksworkshop.com/030_eksctl/launcheks/)  We will **create a cluster that is using 6 worker nodes**.
+
+So on your AWS Cloud9 instance let's prepare a configuration file for this:
 
 ```
 cat << EOF > eksworkshop6nodes.yaml
@@ -65,16 +68,16 @@ Then launch it:
 eksctl create cluster -f eksworkshop6nodes.yaml
 ```
 
-This will take a few minutes, after the command completed check if the cluster is available:
+This will take a few minutes, after the command completes check if the cluster is available:
 
 ```
 kubectl get nodes
 ```
 
 
-Create **storage class for this cluster** by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
+Create a **storage class for this cluster** by following the EKS tutorial for EBS CSI: https://www.eksworkshop.com/beginner/170_statefulset/ebs_csi_driver/ stop after completing the third step  https://www.eksworkshop.com/beginner/170_statefulset/storageclass/
 
-To perform this part of the tutorial You can follow the steps below that have been customized with the cluster name we used above:
+To perform this part of the tutorial You can **follow the steps below that have been customized with the right cluster name** taht we used above:
 
 IAM policy (no changes):
 
@@ -126,7 +129,7 @@ helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-d
 helm search  repo aws-ebs-csi-driver
 ```
 
-And install it using Helm (remember to install helm in your Cloud 9 instance as per the instructions on the EKS Workshop linked above):
+And install it using Helm (remember to install Helm in your Cloud 9 instance as per the instructions on the EKS Workshop linked above):
 
 ```
 helm upgrade --install aws-ebs-csi-driver \
@@ -176,11 +179,11 @@ kubectl describe storageclass mysql-gp2
 ```
 
 
-Now you have a Kubernetes Cluster that can use EBS as an external storage provider.
+Now you have a **Kubernetes Cluster that can use EBS as an external storage provider**.
 
 The Cluster is distributed over 3 Availability Zones with **two** workers in each AZ.
 
-To demonstrate that the application can survive the loss of a node in an AZ, we will deploy a Cassandra cluster and simulate the loss of a worker node in one availability zone. The Cassandra Cluster will have one node in every AZ connected to an external EBS storage, as such **during the simulated failure the pod will be restarted on the remaining node in the AZ and the application will be able to reconnect to storage** (as this is external to the container and available on EBS).
+To demonstrate that the application can survive the loss of a node in an AZ, we will deploy a Cassandra cluster and **simulate the loss of a worker node in one availability zone**. The Cassandra Cluster will have one node in every AZ connected to an external EBS storage, as such **during the simulated failure the pod will be restarted on the remaining node in the AZ and the application will be able to reconnect to storage** (as this is external to the container and available on EBS).
 
 ![Alt text](/images/Cassandra6Deployed.png "Cassandra6Deployed")
 
@@ -335,7 +338,7 @@ You should see three pods for Cassandra nodes and three volumes of 1 GB bound to
 
 
 ## Failover Test
-Now we will simulate a failure scenario where one container host node in one AZ becomes unavailable (as we have two nodes per AZ so we expect that the conatiner to start on the operational container host in the same AZ and reconnect to storage).  
+Now we will simulate a **failure scenario where one container host node in one AZ becomes unavailable** (as we have two nodes per AZ so we expect the container to start on the operational container host available in the same AZ and reconnect to storage).  
 
 ![Alt text](/images/Cassandra6RestoredFocus.png "Cassandra6RestoredFocus")
 
@@ -371,8 +374,9 @@ You will see the list of the Cassandra nodes:
 
 ![Alt text](/images/3-Cassandraips.png "3-Cassandraips")
 
-Now we will simulate a failure for one AZ (by taking down the related Kubernetes container host node) and see how the setup behaves.  
+Now we will **simulate a failure for one AZ (by taking down the related Kubernetes container host node)** and see how the setup behaves.  
 Let’s cordon ([https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/)) the node where pod cassandra-0 is executing:  
+
 ```
 NODE=`kubectl get pods cassandra-0 -o json | jq -r .spec.nodeName`
 
@@ -384,7 +388,7 @@ In the output you’ll see that the container scheduling is now disabled for tha
 
 ![Alt text](/images/cordon6nodes.png "cordon6nodes")
 
-Now let’s delete the pod (to simulate failure in the AZ) and see if it can restart:
+Now let’s delete the pod (to simulate failure in the Container host) and see if it can restart:
 
 ```
 kubectl delete pod cassandra-0
@@ -409,7 +413,7 @@ We can issue again commands to node 0 as it has been restarted on the remaining 
 ```
 kubectl exec cassandra-0 -- nodetool status
 ```
-Issuing the same command to node 1 will show us the Cassandra cluster status:
+Issuing this will show us the Cassandra cluster status:
 
 ```
 kubectl exec cassandra-0 -- nodetool status
