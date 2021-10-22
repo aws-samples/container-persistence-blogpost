@@ -335,7 +335,10 @@ You should see three pods for Cassandra nodes and three volumes of 1 GB bound to
 
 
 ## Failover Test
-Now we will simulate a failure scenario where one container host node in one AZ becomes unavailable (as we have two nodes per AZ so we expect that the coonatiner to start on the operational container host in the same AZ and reconnect to storage).  
+Now we will simulate a failure scenario where one container host node in one AZ becomes unavailable (as we have two nodes per AZ so we expect that the conatiner to start on the operational container host in the same AZ and reconnect to storage).  
+
+![Alt text](/images/Cassandra6RestoredFocus.png "Cassandra6RestoredFocus")
+
 To see that data gets persisted even in case of a failure **let’s write some information into the Cassandra cluster before simulating the failure**.  
 
 Connect to node zero of the Cassandra cluster:  
