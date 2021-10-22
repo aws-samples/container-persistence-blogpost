@@ -300,7 +300,10 @@ You should see three pods for Cassandra nodes and three volumes of 1 GB bound to
 
 
 ## Failover Test  
-Now we will simulate a failure scenario where one node in one AZ becomes unavailable (as we have just one node per AZ this can reproduce a full AZ failure).  
+Now we will simulate a failure scenario where one node in one AZ becomes unavailable (as we have just one node per AZ this can reproduce a full AZ failure). 
+
+![Alt text](/images/Cassandra3NodesFailure.png "Cassandra3NodesFailure")
+
 To see that data gets persisted even in case of a failure **let’s write some information into the Cassandra cluster before simulating the failure**.  
 
 Connect to node zero of the Cassandra cluster:  
