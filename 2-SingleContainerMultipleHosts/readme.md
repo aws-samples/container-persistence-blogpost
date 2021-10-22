@@ -391,17 +391,17 @@ kubectl get pods
 kubectl describe pods cassandra-0
 ```
 
-The pod will restart and the last command will produce an output similar to:
+The pod will restart and the last command will produce an output (showing that the pod was able to restart and reconnect the relevant datastore from EBS) similar to:
 
-![Alt text](/images/6-podscheduling.png "6-podscheduling")
+![Alt text](/images/cassandra6restartpod.png "cassandra6restartpod)
 
-As you can see from the latest output the pod cannot be scheduled as there are no Kubernetes nodes that can connect to the data (as for demo purposes we just had **only one node per AZ in our setup** and the EBS volume for the container exists only in one availability zone):
+This happened because we have **two node per AZ in our setup** and the EBS volume for the container is available in that availability zone to be reconnected:
 
 ![Alt text](/images/7-onenodeperaz.png "7-onenodeperaz")
 
-Let's see that the Cassandra cluster is still operational even if one container host is offline.
+Let's see that the **Cassandra cluster is still operational even if one container host is offline**.
 
-We can issue again commands to node 0 as it has been restarted on the container hiost available in AZ 1:
+We can issue again commands to node 0 as it has been restarted on the remaining container host available in AZ 1:
 
 ```
 kubectl exec cassandra-0 -- nodetool status
@@ -413,14 +413,14 @@ kubectl exec cassandra-0 -- nodetool status
 ```
 We can see that all Cassandra nodes are active
 
-And the data is still available
+And the data is still available:
 
 ```
 kubectl exec cassandra-0 -- cqlsh -e 'SELECT * FROM awsdemo.awsregions;'
 ```
 And it is still set to be protected over the three nodes:
 ```
-kubectl exec -it cassandra-1 -- nodetool getendpoints awsdemo awsregions eu-south-1
+kubectl exec -it cassandra-0 -- nodetool getendpoints awsdemo awsregions eu-south-1
 ```
 
 ![Alt text](/images/cassandradatastillpresent.png "cassandradatastillpresent")
