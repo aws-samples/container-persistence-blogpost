@@ -408,11 +408,8 @@ This happened because we have **two node per AZ in our setup** and the EBS volum
 
 Let's see that the **Cassandra cluster is still operational even if one container host is offline**.
 
-We can issue again commands to node 0 as it has been restarted on the remaining container host available in AZ 1:
+We can issue again commands to node 0 as it has been restarted on the remaining container host available in AZ 1.
 
-```
-kubectl exec cassandra-0 -- nodetool status
-```
 Issuing this will show us the Cassandra cluster status:
 
 ```
