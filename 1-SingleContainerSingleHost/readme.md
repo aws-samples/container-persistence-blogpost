@@ -97,7 +97,7 @@ We have effectively **created a MySQL container that effectively uses a volume e
 
 ## Clean up Instructions
 
-Remember to **clean up the deployment** by using:
+Please remember to **clean up the deployment** by using:
 ```
 docker stop containerid
 docker-compose rm db
