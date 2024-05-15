@@ -17,7 +17,7 @@ This setup uses **AWS Cloud9 as an environment to deploy your container and stor
 If you want to test how to persist data for a single container running on a single Container host out you could use AWS Cloud9 ([https://aws.amazon.com/cloud9/](https://aws.amazon.com/cloud9/)). We recommend using an AWS Cloud9 desktop since this provides an environment to run any commands without needing to modify your own systems, and it provides a consistent experience that has been tested by the author. 
 
 To deploy Cloud9 you can use this guide provide as part of the AWS EKS worshop 
-[https://www.eksworkshop.com/020_prerequisites/workspace/](https://www.eksworkshop.com/020_prerequisites/workspace/)  
+[https://www.eksworkshop.com/020_prerequisites/workspace/]([https://www.eksworkshop.com/020_prerequisites/workspace/](https://archive.eksworkshop.com/020_prerequisites/workspace/))  
   
 Here are the quick steps for **testing on AWS Cloud9 and Docker**.  
   
